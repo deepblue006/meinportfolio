@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mein Portfolio</title>
+<!--PWA-HEAD-->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<meta name="theme-color" content="#0a0b10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Portfolio">
+<!--/PWA-HEAD-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: eine Spalte, Handy zuerst. Kopf mit Depotwert → Ziel → Struktur → Positionen → Cash → Regeln → Einstellungen. Dark-first wie die Vorlage. */
+/* Farben aus der Vorlage (Screenshot) übernommen; bewusst nur dunkel. */
+:root{
+  --bg:#0a0b10; --surface:#12161c; --surface-2:#171b22; --line:#20242a;
+  --fg:#e7ebf1; --muted:#6f7379; --faint:#4b4f57;
+  --accent:#e9983f;      /* Core / Large Caps – Orange der Vorlage */
+  --core2:#f3c27e;       /* Strategic Plays – helles Orange */
+  --blue:#5b8af6;        /* Moonshots – Blau der Vorlage */
+  --teal:#5b8af6;        /* Moonshot */
+  --rose:#9db7fa;        /* Spekulation – helles Blau */
+  --violet:#a48df2;      /* Krypto */
+  --cashc:#3b404f;       /* Cash – Grau der Vorlage */
+  --good:#6ec28f; --warn:#e9c46a; --bad:#e05a62;
+  --font-display:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:12px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--font-body);
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:18px 64px;display:flex;flex-direction:column;gap:28px}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--font-mono)}
+h1,h2,h3{margin:0;text-wrap:balance}
+.eyebrow{font:500 11px/1.2 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.sec-head{display:flex;align-items:center;gap:12px}
+.sec-head h2{font:500 11px/1.2 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.sec-head::after{content:"";flex:1;height:1px;background:var(--line)}
+.sec-head .act{order:3}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:8px 12px;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad)}
+.btn.small{padding:5px 9px;font-size:13px;border-radius:8px}
+.icon-btn{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;width:38px;height:38px;display:grid;place-items:center}
+.icon-btn svg{width:18px;height:18px}
+.spin svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.spin svg{animation:none}*{transition:none!important}}
+
+/* Kopf */
+.hero{display:flex;flex-direction:column;gap:10px;padding-top:6px}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.hero h1{font:700 30px/1.1 var(--font-display);letter-spacing:-.01em}
+.total{font:600 clamp(36px,11vw,52px)/1 var(--font-display);letter-spacing:-.02em}
+.delta{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;font-size:15px}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.status{display:flex;align-items:center;gap:8px;font:400 12px/1.3 var(--font-mono);color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none}
+.dot.live{background:var(--good);box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 25%,transparent)}
+.dot.partial{background:var(--warn)}
+.notice{border:1px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--muted)}
+.notice b{color:var(--fg)}
+
+/* Ziel */
+.goal-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.stage{border:1px solid var(--line);border-radius:12px;padding:10px 10px 9px;background:var(--surface);min-width:0}
+.stage .eyebrow{font-size:9.5px;letter-spacing:.1em}
+.stage .v{font:600 15px/1.2 var(--font-display);margin-top:6px;white-space:nowrap}
+.stage .s{font-size:11px;color:var(--muted);margin-top:2px}
+.stage.done{border-color:color-mix(in srgb,var(--accent) 70%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
+.stage.done .v{color:var(--accent)}
+.stage.target .v{color:var(--good)}
+.stage.target{border-color:color-mix(in srgb,var(--good) 35%,var(--line))}
+.stage.target.done{border-color:var(--good);background:color-mix(in srgb,var(--good) 6%,var(--surface))}
+@media (max-width:520px){.goal-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.stage.mid2,.stage.mid3{display:none}}
+.track{position:relative;height:10px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.track .fill{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 55%,var(--good)));border-radius:99px}
+.track-labels{display:flex;justify-content:space-between;font:400 12px/1.3 var(--font-mono);color:var(--muted);margin-top:6px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:520px){.kpis{grid-template-columns:1fr}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
+.kpi .big{font:600 22px/1.15 var(--font-display);margin-top:6px}
+.kpi p{margin:6px 0 0;font-size:12.5px;color:var(--muted)}
+.tag{display:inline-block;font:500 11px/1 var(--font-mono);padding:4px 7px;border-radius:6px;border:1px solid currentColor;letter-spacing:.02em}
+.t-good{color:var(--good)} .t-warn{color:var(--warn)} .t-bad{color:var(--bad)} .t-info{color:var(--blue)}
+details.edit summary{list-style:none;cursor:pointer;display:inline-flex}
+details.edit summary::-webkit-details-marker{display:none}
+.form-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+@media (max-width:520px){.form-row{grid-template-columns:1fr 1fr}}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}
+.inp{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:16px;color:var(--fg)}
+.inp:focus{border-color:var(--accent);outline:none}
+
+/* Struktur */
+.stack{display:flex;height:34px;border-radius:9px;overflow:hidden;border:1px solid var(--line);background:var(--surface-2)}
+.stack span{display:flex;align-items:center;justify-content:center;font:600 11px/1 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--bg);white-space:nowrap;overflow:hidden;min-width:0}
+.stack span.cash{color:var(--fg)}
+.legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 18px;margin-top:12px}
+@media (max-width:420px){.legend{grid-template-columns:1fr}}
+.lg{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px;min-width:0}
+.lg i{width:10px;height:10px;border-radius:3px;flex:none}
+.lg .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lg .p{font-family:var(--font-mono);font-size:13px;width:56px;text-align:right}
+.lg .e{color:var(--muted);font-size:13px;width:84px;text-align:right}
+
+/* Positionen */
+.group-h{display:flex;justify-content:space-between;align-items:baseline;margin:4px 2px 8px;font-size:13px;color:var(--muted)}
+.group-h b{color:var(--fg);font-weight:600;font-size:14px}
+.plist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.prow{display:grid;grid-template-columns:4px minmax(0,1fr) auto;gap:0 12px;padding:12px 14px 12px 0;border-bottom:1px solid var(--line);text-align:left;background:none;border-left:0;border-right:0;border-top:0;width:100%}
+.prow:last-child{border-bottom:0}
+.prow:hover{background:var(--surface-2)}
+.prow .bar{grid-row:1/span 3;border-radius:0 3px 3px 0}
+.prow .nm{font-weight:600;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow .tk{font:400 12px/1.3 var(--font-mono);color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow .val{text-align:right;font-weight:600}
+.prow .pct{text-align:right;font:500 12.5px/1.3 var(--font-mono)}
+.prow .meta{grid-column:2/span 2;display:flex;align-items:center;gap:10px;margin-top:8px}
+.wbar{flex:1;height:5px;border-radius:9px;background:var(--surface-2);overflow:hidden;position:relative}
+.wbar b{position:absolute;inset:0 auto 0 0;border-radius:9px}
+.wbar .mark{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--faint)}
+.wtxt{font:500 13px/1 var(--font-mono);min-width:52px;text-align:right}
+.chips{grid-column:2/span 2;display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font:500 11.5px/1.25 var(--font-mono);padding:4px 7px;border-radius:6px;background:color-mix(in srgb,currentColor 12%,transparent)}
+.price-src{font-size:10px;margin-left:4px;color:var(--faint)}
+.empty{padding:22px 16px;text-align:center;color:var(--muted);font-size:14px}
+.empty b{display:block;color:var(--fg);margin-bottom:4px}
+
+/* Cash */
+.cash-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.cash-big{font:600 28px/1.1 var(--font-display)}
+.gauge{position:relative;height:12px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);margin-top:14px;overflow:visible}
+.gauge b{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--cashc)}
+.gauge .zone{position:absolute;top:-1px;bottom:-1px;border-left:2px solid var(--accent)}
+.gauge .zone span{position:absolute;top:16px;left:-1px;transform:translateX(-50%);font:500 11px/1 var(--font-mono);color:var(--accent);white-space:nowrap}
+.acc{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 38px;gap:8px;align-items:center;margin-top:8px}
+.acc .inp{padding:8px 10px}
+
+/* Regeln */
+.rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:600px){.rules{grid-template-columns:1fr}}
+.rules h3{font:600 11px/1.2 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.rules ul{list-style:none;margin:0;padding:0}
+.rules li{padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;color:var(--muted);display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px}
+.rules li:last-child{border-bottom:0}
+.rules li code{font:500 11.5px/1.6 var(--font-mono);color:var(--fg)}
+.rules li b{color:var(--fg);font-weight:600}
+
+/* Sheet */
+dialog{border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--fg);padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px)}
+dialog::backdrop{background:color-mix(in srgb,var(--bg) 70%,transparent)}
+.sheet{padding:18px 16px 16px;display:flex;flex-direction:column;gap:12px;overflow:auto;max-height:calc(100dvh - 26px)}
+.sheet h3{font:700 19px/1.2 var(--font-display)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:8px 14px;font-weight:600;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface-2);color:var(--fg)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sheet-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin-top:4px}
+.hits{display:flex;flex-wrap:wrap;gap:6px}
+.hint{font-size:12px;color:var(--faint);margin:0}
+.settings{display:flex;flex-direction:column;gap:12px}
+.settings p{margin:0;font-size:13px;color:var(--muted)}
+.settings a{color:var(--blue)}
+textarea.inp{min-height:90px;font:12px/1.4 var(--font-mono)}
+.row-btns{display:flex;flex-wrap:wrap;gap:8px}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:14px;font-weight:600;z-index:10}
+footer{font-size:12px;color:var(--faint);text-align:center}
+/* Krypto-Rücksetzer-Plan */
+.plan-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.plan-big{font:600 24px/1.1 var(--font-display)}
+.stage-row{display:flex;flex-direction:column;gap:6px;padding:12px 0;border-top:1px solid var(--line)}
+.stage-row .act{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px}
+.stage-row .t{font-weight:600;font-size:14.5px}
+.stage-row .s{font:400 12px/1.4 var(--font-mono);color:var(--muted)}
+.stage-row .wbar{flex:none;height:6px}
+.notice.plan{border-style:solid;border-color:color-mix(in srgb,var(--violet) 55%,var(--line));background:color-mix(in srgb,var(--violet) 8%,transparent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow">Aktien · Krypto · Cash</div>
+        <h1>Mein Portfolio</h1>
+      </div>
+      <button class="icon-btn" id="refreshBtn" aria-label="Kurse aktualisieren" title="Kurse aktualisieren">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      </button>
+    </div>
+    <div class="total num" id="total">–</div>
+    <div class="delta num" id="delta"></div>
+    <div class="status" id="status"><span class="dot"></span><span>Lade Kurse …</span></div>
+    <div id="keyNotice" hidden class="notice"></div>
+    <div id="planNotice" hidden class="notice plan"></div>
+  </header>
+
+  <section aria-labelledby="h-goal">
+    <div class="sec-head"><h2 id="h-goal">Ziel &amp; Messlatte</h2></div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px">
+      <div class="goal-grid" id="stages"></div>
+      <div>
+        <div class="track"><div class="fill" id="goalFill" style="width:0"></div></div>
+        <div class="track-labels num"><span id="goalFrom"></span><span id="goalPct"></span><span id="goalTo"></span></div>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <details class="edit" id="goalEdit">
+        <summary class="btn small ghost">Ziel bearbeiten</summary>
+        <div class="form-row">
+          <label class="f">Zielwert (€)<input class="inp num" id="gValue" type="number" inputmode="decimal" min="0" step="500"></label>
+          <label class="f">Zieljahr (Jahresende)<input class="inp num" id="gYear" type="number" inputmode="numeric" min="2026" max="2080"></label>
+          <label class="f">Sparrate / Monat (€)<input class="inp num" id="gMonthly" type="number" inputmode="decimal" min="0" step="25"></label>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-struct">
+    <div class="sec-head"><h2 id="h-struct">Depotstruktur</h2></div>
+    <div style="margin-top:14px">
+      <div class="stack" id="stack" role="img" aria-label="Aufteilung des Depots"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-pos">
+    <div class="sec-head"><h2 id="h-pos">Positionen</h2><button class="btn small act" id="addBtn">+ Position</button></div>
+    <div style="display:flex;flex-direction:column;gap:18px;margin-top:14px" id="positions"></div>
+    <div class="card" id="cpCard" style="margin-top:12px" hidden>
+      <div class="plan-head">
+        <div><div class="eyebrow" style="color:var(--violet)">Krypto-Rücksetzer-Plan</div><div class="plan-big num" id="cpReserve">–</div></div>
+        <div style="text-align:right"><div class="eyebrow">Krypto seit Plan</div><div class="plan-big num" id="cpChg">–</div></div>
+      </div>
+      <p class="hint" id="cpBase" style="margin:8px 0 10px"></p>
+      <div id="cpStages"></div>
+      <details class="edit" style="margin-top:10px">
+        <summary class="btn small ghost">Plan bearbeiten</summary>
+        <div class="form-row">
+          <label class="f">Stufe 1: Rückgang (%)<input class="inp num" id="cpP1" type="number" inputmode="decimal" min="1" max="90" step="1"></label>
+          <label class="f">Stufe 1: Betrag (€)<input class="inp num" id="cpA1" type="number" inputmode="decimal" min="0" step="50"></label>
+          <label class="f">Reserve-Konto<select class="inp" id="cpAcc"></select></label>
+          <label class="f">Stufe 2: Rückgang (%)<input class="inp num" id="cpP2" type="number" inputmode="decimal" min="1" max="90" step="1"></label>
+          <label class="f">Stufe 2: Betrag (€)<input class="inp num" id="cpA2" type="number" inputmode="decimal" min="0" step="50"></label>
+        </div>
+        <div class="row-btns" style="margin-top:10px"><button class="btn small" id="cpRebase">Bezug neu setzen</button><button class="btn small danger ghost" id="cpDelete">Plan löschen</button></div>
+        <p class="hint" style="margin-top:8px">Bezug = Krypto-Bestand und Einstand beim Anlegen des Plans. Der Rückgang wird daran gemessen, damit Nachkäufe die Marken nicht verschieben.</p>
+      </details>
+    </div>
+    <div class="card" id="cpEmpty" style="margin-top:12px" hidden>
+      <div class="eyebrow" style="color:var(--violet)">Krypto-Rücksetzer-Plan</div>
+      <p style="margin:8px 0 10px;font-size:13.5px;color:var(--muted)">Lege fest, mit welchem Betrag du bei einem Rücksetzer nachkaufst. Standard: 500 € bei −20 % und 500 € bei −30 % unter Einstand.</p>
+      <button class="btn small" id="cpCreate">Plan anlegen</button>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-cash">
+    <div class="sec-head"><h2 id="h-cash">Cash-Reserve</h2></div>
+    <div class="card" style="margin-top:14px">
+      <div class="cash-head">
+        <div>
+          <div class="eyebrow">Cash gesamt</div>
+          <div class="cash-big num" id="cashTotal">–</div>
+        </div>
+        <div style="text-align:right">
+          <div class="eyebrow">Anteil am Depot</div>
+          <div class="cash-big num" id="cashPct">–</div>
+        </div>
+      </div>
+      <div class="eyebrow" style="margin-top:12px">Aktien-Cash gegen 15-%-Regel</div>
+      <div class="gauge" id="cashGauge" style="margin-top:8px"><b style="width:0"></b><div class="zone" style="left:15%"><span>15 %</span></div></div>
+      <div style="margin-top:26px;display:flex;flex-direction:column;gap:6px">
+        <div id="cashMsg"></div>
+        <div id="cashAccounts"></div>
+        <div><button class="btn small ghost" id="addCash">+ Konto</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-rules">
+    <div class="sec-head"><h2 id="h-rules">Regeln nach Finanzwiesel</h2></div>
+    <div class="rules" style="margin-top:14px">
+      <div class="card">
+        <h3 style="color:var(--accent)">Bevor gekauft wird</h3>
+        <ul>
+          <li><code>C1</code><span><b>Nie über Fair Value kaufen</b>, auch wenn ein Wert „kaufenswert“ heißt.</span></li>
+          <li><code>D9</code><span><b>Höchstens 2–4 Käufe pro Monat.</b> Aufbau Schritt für Schritt von unten durch die Pyramide.</span></li>
+          <li><code>D5</code><span><b>Zahlen in unter 2 Wochen:</b> 2/3 sofort, 1/3 nach den Zahlen und der 3-Tage-Regel.</span></li>
+          <li><code>A4</code><span><b>Spekulation 1–2 %, höchstens 3 %</b> des Depots je Wert.</span></li>
+          <li><code>A7</code><span><b>Keine chinesischen Aktien.</b></span></li>
+          <li><code>J16</code><span><b>Kein Kauf aus News, Hype oder FOMO.</b></span></li>
+          <li><code>I4</code><span><b>Trade Republic:</b> Limits nur mit ganzen Stücken, sonst Preisalarm und Bruchstück-Market-Order in der US-Börsenzeit, Spread vorher prüfen (J10, K2).</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--bad)">Halten, nachkaufen, verkaufen</h3>
+        <ul>
+          <li><code>A5</code><span><b>15 % Cash-Reserve</b> nur für Nachkäufe nach Plan.</span></li>
+          <li><code>J8</code><span><b>Nachkauf bei −15 % und −30 %</b> an der nächsten Chartmarke, Betrag = Cash × Gewichtung ÷ 2 (K18).</span></li>
+          <li><code>J7</code><span><b>Rule of 20:</b> bei −20 % die These kritisch prüfen. Überzeugt und Platz → nachkaufen, sonst raus.</span></li>
+          <li><code>K16</code><span><b>Teilgewinn am Fair Value 2027:</b> Hälfte des Buchgewinns verkaufen, Rest laufen lassen.</span></li>
+          <li><code>E3</code><span><b>Über ca. 20 % Depotanteil</b> beim Quartals-Check auf 17–18 % kürzen (J11).</span></li>
+          <li><code>E1</code><span><b>Kernposition bleibt, solange die These hält.</b> Keine Panikverkäufe (J16).</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:10px">
+      <h3 style="font:600 11px/1.2 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--violet);margin-bottom:6px">Krypto</h3>
+      <ul style="list-style:none;margin:0;padding:0">
+        <li style="padding:6px 0;font-size:13.5px;color:var(--muted)"><b style="color:var(--fg)">Bestand halten, kein Trading, keine Hebel.</b> Sonstiges neues Geld fließt nur in Aktien (Entscheidung 08.10.2026).</li>
+        <li style="padding:6px 0;font-size:13.5px;color:var(--muted)"><b style="color:var(--fg)">Nachkauf nur aus der Krypto-Reserve, nur nach Plan:</b> 500 € bei −20 % und 500 € bei −30 % unter Einstand (Entscheidung 09.10.2026). Kein Nachkauf vor der Marke, keine Aufstockung der Reserve aus dem Aktien-Cash.</li>
+        <li style="padding:6px 0;font-size:13.5px;color:var(--muted)"><b style="color:var(--fg)">Erst nach einem Jahr steuerfrei verkaufen.</b> Den Termin zeigt jeder Coin. Vorher ist der Gewinn mit dem persönlichen Steuersatz steuerpflichtig (§ 23 EStG). Jeder Nachkauf hat seine eigene Jahresfrist.</li>
+        <li style="padding:6px 0;font-size:13.5px;color:var(--muted)">Finanzwiesels Regeln gelten für Aktien. Für Krypto zeigt die App nur Anteil und Gewinn/Verlust.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-set">
+    <div class="sec-head"><h2 id="h-set">Einstellungen</h2></div>
+    <div class="card settings" style="margin-top:14px">
+      <label class="f">Alpha-Vantage-Schlüssel (Aktienkurse)
+        <input class="inp mono" id="sKey" type="text" autocomplete="off" spellcheck="false" placeholder="z. B. 7XQ2…">
+      </label>
+      <p>Kostenlos auf <a href="https://www.alphavantage.co/support/#api-key" target="_blank" rel="noopener">alphavantage.co</a>. Der kostenlose Schlüssel erlaubt 25 Abrufe am Tag, ein Abruf je Aktie. Die App teilt sie ein: Aktienkurse frühestens alle <span id="avEvery">60</span> Minuten, am Wochenende gar nicht.</p>
+      <label class="f">Aktienkurse höchstens alle … Minuten
+        <select class="inp" id="sEvery"><option value="30">30</option><option value="60">60</option><option value="120">120</option><option value="240">240</option></select>
+      </label>
+      <label class="f">CoinGecko-Demo-Schlüssel (Krypto, optional)
+        <input class="inp mono" id="sCgKey" type="text" autocomplete="off" spellcheck="false" placeholder="CG-…">
+      </label>
+      <p>Krypto läuft auch ohne Schlüssel. Mit dem kostenlosen Demo-Schlüssel von <a href="https://www.coingecko.com/en/api/pricing" target="_blank" rel="noopener">coingecko.com</a> ist es zuverlässiger. Wechselkurse kommen von der EZB über Frankfurter, ohne Schlüssel. Alle Schlüssel bleiben nur auf diesem Gerät.</p>
+      <div class="grid2">
+        <label class="f">Startkapital (€)<input class="inp num" id="sStart" type="number" inputmode="decimal" min="0" step="100"></label>
+        <label class="f">Startdatum<input class="inp" id="sDate" type="date"></label>
+      </div>
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px">Sicherung</div>
+        <div class="row-btns">
+          <button class="btn small" id="expFile">Als Datei sichern</button>
+          <button class="btn small" id="expCopy">Kopieren</button>
+          <label class="btn small" for="impFile" style="cursor:pointer">Datei laden</label>
+          <input type="file" id="impFile" accept="application/json,.json" hidden>
+        </div>
+        <textarea class="inp" id="impText" placeholder="Oder Sicherung hier einfügen und „Text laden“ tippen" style="margin-top:8px"></textarea>
+        <div class="row-btns" style="margin-top:8px"><button class="btn small" id="impBtn">Text laden</button></div>
+      </div>
+      <p>Alle Daten liegen nur im Speicher dieses Browsers. Sichere sie ab und zu – beim Löschen der Website-Daten sind sie sonst weg.</p>
+    </div>
+  </section>
+
+  <footer>Kein Finanzberater. Kurse ohne Gewähr, verzögert möglich. Aktien: Alpha Vantage · Krypto: <a href="https://www.coingecko.com" target="_blank" rel="noopener" style="color:inherit">Daten von CoinGecko</a>. Euro-Werte über EZB-Kurs umgerechnet; Trade Republic kann leicht abweichen.</footer>
+</div>
+
+<dialog id="sheet" aria-labelledby="sheetTitle">
+  <form class="sheet" id="posForm" method="dialog">
+    <h3 id="sheetTitle">Position</h3>
+    <div class="seg" role="group" aria-label="Art">
+      <button type="button" data-type="aktie" aria-pressed="true">Aktie</button>
+      <button type="button" data-type="krypto" aria-pressed="false">Krypto</button>
+    </div>
+    <label class="f">Name<input class="inp" id="fName" required placeholder="z. B. Amazon"></label>
+    <div class="grid2" id="stockFields">
+      <label class="f">Symbol (Alpha Vantage)<input class="inp mono" id="fSymbol" placeholder="AMZN" autocapitalize="characters" spellcheck="false"></label>
+      <label class="f">Heimatwährung
+        <select class="inp" id="fCur"><option>USD</option><option>EUR</option><option>CAD</option><option>GBP</option><option>CHF</option><option>DKK</option></select>
+      </label>
+    </div>
+    <p class="hint" id="symHint">US-Werte ohne Zusatz (AMZN). Andere Börsen mit Endung: Toronto .TRT (CSU.TRT), Xetra .DEX (SAP.DEX), London .LON.</p>
+    <div id="cryptoFields" hidden>
+      <label class="f">CoinGecko-ID
+        <div style="display:flex;gap:8px"><input class="inp mono" id="fCg" placeholder="bitcoin" spellcheck="false" autocapitalize="none"><button type="button" class="btn small" id="cgSearch">Suchen</button></div>
+      </label>
+      <div class="hits" id="cgHits" style="margin-top:8px"></div>
+    </div>
+    <div class="grid2">
+      <label class="f">Baustein
+        <select class="inp" id="fBucket"></select>
+      </label>
+      <label class="f">Stück<input class="inp num" id="fQty" type="number" inputmode="decimal" step="any" min="0" required></label>
+    </div>
+    <label class="f">Einstand je Stück in € (inkl. Gebühr)<input class="inp num" id="fCost" type="number" inputmode="decimal" step="any" min="0" required></label>
+    <div id="markFields">
+      <div class="eyebrow" style="margin:4px 0 6px">Marken in Heimatwährung (optional)</div>
+      <div class="grid2" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+        <label class="f">Nachkauf 1<input class="inp num" id="fNk1" type="number" inputmode="decimal" step="any"></label>
+        <label class="f">Nachkauf 2<input class="inp num" id="fNk2" type="number" inputmode="decimal" step="any"></label>
+        <label class="f">Teilgewinn<input class="inp num" id="fTg" type="number" inputmode="decimal" step="any"></label>
+      </div>
+    </div>
+    <label class="f">Eigener Kurs in Heimatwährung (nur wenn kein Live-Kurs)<input class="inp num" id="fManual" type="number" inputmode="decimal" step="any"></label>
+    <label class="f" id="lotsField">Käufe für die Haltefrist (je Zeile: Datum Stück)
+      <textarea class="inp mono" id="fLots" rows="3" placeholder="02.10.2026 1131,778558" style="min-height:70px;font-size:14px"></textarea>
+    </label>
+    <label class="f">Notiz<input class="inp" id="fNote" placeholder="z. B. FW Fair Value 2027: 326 $"></label>
+    <div class="sheet-actions">
+      <button type="button" class="btn danger ghost" id="delBtn">Löschen</button>
+      <div style="display:flex;gap:8px">
+        <button type="button" class="btn ghost" id="cancelBtn">Abbrechen</button>
+        <button type="submit" class="btn primary">Speichern</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<!--SEED-->
+<script>
+(() => {
+"use strict";
+const STORE = "meinPortfolio.v1";
+const BUCKETS = [
+  {k:"Large Cap", c:"--accent"},
+  {k:"Strategic Play", c:"--core2"},
+  {k:"Moonshot", c:"--teal"},
+  {k:"Spekulation", c:"--rose"},
+  {k:"Krypto", c:"--violet"},
+];
+const CASH_COLOR = "--cashc";
+const CUR_SIGN = {USD:"$", EUR:"€", CAD:"CA$", GBP:"£", CHF:"CHF", DKK:"kr"};
+
+const uid = () => Math.random().toString(36).slice(2,10);
+const fmtE = (v, d=2) => isFinite(v) ? v.toLocaleString("de-DE",{style:"currency",currency:"EUR",minimumFractionDigits:d,maximumFractionDigits:d}) : "–";
+const fmtN = (v, d=2) => isFinite(v) ? v.toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}) : "–";
+const fmtP = (v, d=1, sign=false) => isFinite(v) ? (sign && v>0 ? "+" : "") + (v*100).toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d}) + " %" : "–";
+const fmtHome = (v, cur) => { if(!isFinite(v)) return "–"; const d = v<1?4:2; const s = fmtN(v,d); return cur==="EUR" ? s+" €" : cur==="USD" ? s+" $" : s+" "+(CUR_SIGN[cur]||cur); };
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const $ = id => document.getElementById(id);
+const num = v => { const x = parseFloat(String(v).replace(",",".")); return isFinite(x) ? x : undefined; };
+
+function defaults(){
+  const seed = (typeof window.PORTFOLIO_SEED === "object" && window.PORTFOLIO_SEED) ? JSON.parse(JSON.stringify(window.PORTFOLIO_SEED)) : null;
+  return Object.assign({
+    start: 11000, startDate: new Date().toISOString().slice(0,10),
+    goal: {value: 30000, year: new Date().getFullYear()+6, monthly: 0},
+    cash: [{id:uid(), name:"Cash", amount:11000}],
+    positions: [],
+    cryptoPlan: null,
+    settings: {avKey:"", cgKey:"", stockEvery:60},
+    quotes: {}, fx: {rates:null, ts:0}
+  }, seed || {});
+}
+let S;
+function load(){
+  try { const raw = localStorage.getItem(STORE); if(raw){ S = Object.assign(defaults(), JSON.parse(raw)); return; } } catch(e){}
+  S = defaults();
+}
+function save(){ try { localStorage.setItem(STORE, JSON.stringify(S)); } catch(e){} }
+
+/* ---------- Kurse ---------- */
+let fetchState = {fx:null, crypto:null, stock:null, ts:0, busy:false, cryptoTs:0};
+async function getJSON(url, ms=12000){
+  const ctl = new AbortController(); const t = setTimeout(()=>ctl.abort(), ms);
+  try { const r = await fetch(url, {signal:ctl.signal, cache:"no-store"}); if(!r.ok) throw new Error("HTTP "+r.status); return await r.json(); }
+  finally { clearTimeout(t); }
+}
+async function fetchFx(){
+  const urls = ["https://api.frankfurter.dev/v1/latest?base=EUR","https://api.frankfurter.app/latest?from=EUR"];
+  for(const u of urls){
+    try { const j = await getJSON(u); if(j && j.rates){ S.fx = {rates:j.rates, ts:Date.now(), date:j.date}; return true; } } catch(e){}
+  }
+  return false;
+}
+async function fetchCrypto(){
+  const ids = [...new Set(S.positions.filter(p=>p.type==="krypto" && p.cgId).map(p=>p.cgId.trim().toLowerCase()))];
+  if(!ids.length) return null;
+  try {
+    const k = (S.settings.cgKey||"").trim();
+    const j = await getJSON("https://api.coingecko.com/api/v3/simple/price?ids="+encodeURIComponent(ids.join(","))+"&vs_currencies=eur,usd&include_24hr_change=true"+(k?"&x_cg_demo_api_key="+encodeURIComponent(k):""));
+    let n=0;
+    for(const id of ids){ const q=j[id]; if(q && isFinite(q.eur)){ S.quotes["cg:"+id] = {eur:q.eur, usd:q.usd, chg:q.eur_24h_change, ts:Date.now()}; n++; } }
+    return n===ids.length ? true : (n>0 ? "partial" : false);
+  } catch(e){ return false; }
+}
+/* Alpha Vantage: 25 Abrufe pro Tag, ein Abruf je Symbol (GLOBAL_QUOTE) */
+const AV_DAILY = 25;
+const todayKey = () => new Date().toISOString().slice(0,10); // Zählung nach UTC-Tag
+function avUsage(){ const u = S.avUsage||{}; return u.day===todayKey() ? u : {day:todayKey(), n:0, blocked:false}; }
+function avCount(blocked){ const u = avUsage(); u.n++; if(blocked) u.blocked=true; S.avUsage = u; }
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+function stockSyms(){ return [...new Set(S.positions.filter(p=>p.type==="aktie" && p.symbol).map(p=>p.symbol.trim().toUpperCase()))]; }
+function isWeekend(){ const d = new Date().getDay(); return d===0 || d===6; }
+async function fetchStocks(manual){
+  const syms = stockSyms();
+  if(!syms.length) return null;
+  const key = (S.settings.avKey||"").trim();
+  if(!key) return "nokey";
+  const every = (+S.settings.stockEvery||60)*60000;
+  // fällige Symbole: noch kein Kurs, oder Kurs älter als das Intervall (Wochenende: nur ohne Kurs)
+  let due = syms.filter(s => { const q=S.quotes["st:"+s]; if(!q) return true; if(isWeekend() && !manual) return false; return manual ? Date.now()-q.ts > 5*60000 : Date.now()-q.ts > every; });
+  if(!due.length) return "fresh";
+  const u = avUsage();
+  if(u.blocked || u.n >= AV_DAILY) return "limit";
+  due = due.slice(0, AV_DAILY - u.n);
+  let ok = 0, limit = false;
+  for(let i=0;i<due.length;i++){
+    const s = due[i];
+    if(i>0) await sleep(1300);
+    try {
+      const j = await getJSON("https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol="+encodeURIComponent(s)+"&apikey="+encodeURIComponent(key));
+      const g = j && j["Global Quote"];
+      if(g && g["05. price"]){
+        avCount(false);
+        S.quotes["st:"+s] = {c:+g["05. price"], dp:parseFloat(g["10. change percent"]), pc:+g["08. previous close"], day:g["07. latest trading day"], ts:Date.now()};
+        ok++;
+      } else if(j && (j.Information || j.Note)){
+        avCount(true); limit = true; S.avMsg = String(j.Information||j.Note).slice(0,160); break;
+      } else { avCount(false); S.avBad = Object.assign(S.avBad||{}, {[s]:Date.now()}); }
+    } catch(e){ break; }
+  }
+  if(limit) return ok ? "partial" : "limit";
+  return ok===due.length ? true : ok>0 ? "partial" : false;
+}
+async function refresh(manual=false){
+  if(fetchState.busy) return;
+  fetchState.busy = true; $("refreshBtn").classList.add("spin");
+  const [fx, crypto, stock] = await Promise.all([fetchFx(), fetchCrypto(), fetchStocks(manual)]);
+  fetchState = {fx, crypto, stock, ts:Date.now(), busy:false, cryptoTs:Date.now()};
+  $("refreshBtn").classList.remove("spin");
+  save(); render();
+  if(manual) toast(stock==="limit" ? "Tageslimit Alpha Vantage erreicht – Krypto aktualisiert" : (fx||crypto===true||stock===true||stock==="fresh") ? "Kurse aktualisiert" : "Keine Verbindung zu den Kursquellen");
+}
+
+/* ---------- Rechnen ---------- */
+function eurPer(cur){
+  if(cur==="EUR") return 1;
+  const r = S.fx && S.fx.rates && S.fx.rates[cur];
+  return r ? 1/r : NaN;
+}
+function priceOf(p){
+  if(p.type==="krypto"){
+    const q = S.quotes["cg:"+(p.cgId||"").trim().toLowerCase()];
+    if(q) return {eur:q.eur, home:q.eur, cur:"EUR", chg:isFinite(q.chg)?q.chg/100:NaN, src:"live", ts:q.ts};
+    if(isFinite(p.manual) && p.manual>0) return {eur:p.manual, home:p.manual, cur:"EUR", chg:NaN, src:"manuell"};
+    return {eur:p.cost, home:p.cost, cur:"EUR", chg:NaN, src:"Einstand"};
+  }
+  const cur = p.cur || "USD";
+  const q = S.quotes["st:"+(p.symbol||"").trim().toUpperCase()];
+  let home = NaN, src="", chg=NaN, ts=0;
+  if(q){ home=q.c; src="live"; chg=isFinite(q.dp)?q.dp/100:NaN; ts=q.ts; }
+  else if(isFinite(p.manual) && p.manual>0){ home=p.manual; src="manuell"; }
+  if(isFinite(home)){
+    const f = eurPer(cur);
+    if(isFinite(f)) return {eur:home*f, home, cur, chg, src, ts};
+    return {eur:p.cost, home, cur, chg, src:"Einstand (kein Wechselkurs)", ts};
+  }
+  return {eur:p.cost, home: isFinite(eurPer(cur)) ? p.cost/eurPer(cur) : NaN, cur, chg:NaN, src:"Einstand"};
+}
+function compute(){
+  const rows = S.positions.map(p => {
+    const pr = priceOf(p);
+    const value = (+p.qty||0) * pr.eur, cost = (+p.qty||0) * (+p.cost||0);
+    return {p, pr, value, cost, pnl:value-cost, pnlPct: cost>0 ? value/cost-1 : NaN};
+  });
+  const invested = rows.reduce((a,r)=>a+r.value,0);
+  const costSum = rows.reduce((a,r)=>a+r.cost,0);
+  const cash = S.cash.reduce((a,c)=>a+(+c.amount||0),0);
+  const total = invested + cash;
+  rows.forEach(r => r.w = total>0 ? r.value/total : 0);
+  return {rows, invested, costSum, cash, total};
+}
+/* Haltefrist: Kauf am Tag D → steuerfrei ab D + 1 Jahr + 1 Tag */
+const fmtDate = iso => { const [y,m,d] = iso.split("-"); return d+"."+m+"."+y; };
+function parseLots(txt){
+  return txt.split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=>{
+    const m = l.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})\s+([\d.,]+)/); if(!m) return null;
+    const q = parseFloat(m[4].replace(/\.(?=\d{3}(\D|$))/g,"").replace(",","."));
+    return isFinite(q) ? {date:`${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`, qty:q} : null;
+  }).filter(Boolean);
+}
+function freeFrom(iso){ const [y,m,d]=iso.split("-").map(Number); const t=new Date(y+1,m-1,d); t.setDate(t.getDate()+1); return t; }
+const today0 = () => { const t=new Date(); t.setHours(0,0,0,0); return t; };
+const daysTo = dt => Math.round((dt - today0())/86400000);
+function taxInfo(r){
+  const lots = (r.p.lots||[]).filter(l=>l.qty>0);
+  if(!lots.length) return null;
+  const tot = lots.reduce((a,l)=>a+l.qty,0);
+  const main = lots.filter(l=>l.qty/tot>=0.01);
+  const pending = main.map(l=>({...l, free:freeFrom(l.date)})).filter(l=>daysTo(l.free)>0).sort((a,b)=>a.free-b.free);
+  return {lots, main, pending, last: pending.length ? pending[pending.length-1].free : null};
+}
+function ruleChips(r){
+  const out = [], p=r.p;
+  if(r.w > 0.20 && p.type==="aktie") out.push(["t-warn","Über 20 % · auf 17–18 % kürzen (E3)"]);
+  if(p.bucket==="Spekulation"){
+    if(r.w>0.03) out.push(["t-bad","Spekulation über 3 % (A4)"]);
+    else if(r.w>0.02) out.push(["t-warn","Spekulation über 2 % (A4)"]);
+  }
+  if(p.type==="aktie" && r.pr.src!=="Einstand"){
+    const h = r.pr.home;
+    if(isFinite(p.tg) && p.tg>0 && h>=p.tg) out.push(["t-good","Teilgewinn-Marke "+fmtHome(p.tg,r.pr.cur)+" erreicht (K16)"]);
+    if(isFinite(p.nk2) && p.nk2>0 && h<=p.nk2) out.push(["t-info","Nachkauf 2 bei "+fmtHome(p.nk2,r.pr.cur)+" erreicht (J8)"]);
+    else if(isFinite(p.nk1) && p.nk1>0 && h<=p.nk1) out.push(["t-info","Nachkauf 1 bei "+fmtHome(p.nk1,r.pr.cur)+" erreicht (J8)"]);
+  }
+  if(p.type==="aktie" && r.pnlPct <= -0.20) out.push(["t-warn","−20 % · These prüfen (Rule of 20, J7)"]);
+  if(p.type==="krypto"){
+    const t = taxInfo(r);
+    if(t && t.pending.length){
+      const d = daysTo(t.last), dt = t.last.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+      const first = t.pending[0].free;
+      const txt = (t.pending.length>1 && first.getTime()!==t.last.getTime())
+        ? `Steuerfrei ab ${first.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"})} bis ${dt} · noch ${d} Tage`
+        : `Steuerfrei ab ${dt} · noch ${d} Tage`;
+      out.push([r.pnl>0 ? "t-warn" : "t-info", txt + (r.pnl>0 ? " · Gewinn jetzt steuerpflichtig" : "")]);
+    } else if(t){ out.push(["t-good","Haltefrist vorbei · Verkauf steuerfrei"]); }
+  }
+  return out;
+}
+/* Krypto-Rücksetzer-Plan: Rückgang gemessen am festen Bezugsbestand (Stück + Einstand beim Anlegen) */
+function newPlan(){
+  const ref = {};
+  S.positions.filter(p=>p.type==="krypto" && p.cgId && +p.qty>0).forEach(p=>{ const id=p.cgId.trim().toLowerCase(); const r=ref[id]||{qty:0,cost:0}; const q=+p.qty; r.cost=(r.cost*r.qty+q*(+p.cost||0))/((r.qty+q)||1); r.qty+=q; ref[id]=r; });
+  const acc = S.cash.find(c=>/bitvavo|krypto/i.test(c.name)) || S.cash[0];
+  return {created:new Date().toISOString().slice(0,10), account: acc?acc.id:null, ref,
+    stages:[{pct:-0.20, amount:500, done:null},{pct:-0.30, amount:500, done:null}]};
+}
+function planState(){
+  const P = S.cryptoPlan; if(!P || !P.ref || !Object.keys(P.ref).length) return null;
+  let now=0, base=0, missing=0;
+  for(const [id,r] of Object.entries(P.ref)){
+    const q = S.quotes["cg:"+id];
+    if(!q) missing++;
+    now += r.qty*(q ? q.eur : r.cost); base += r.qty*r.cost;
+  }
+  const chg = base>0 ? now/base-1 : NaN;
+  const acc = S.cash.find(c=>c.id===P.account);
+  const reserve = P.stages.reduce((a,s)=>a+(+s.amount||0),0);
+  const open = P.stages.filter(s=>!s.done).reduce((a,s)=>a+(+s.amount||0),0);
+  const stages = P.stages.map((s,i)=>({...s, i, mark: base*(1+s.pct), hit: isFinite(chg) && chg <= s.pct + 1e-9}));
+  return {P, now, base, chg, missing, acc, accAmt: acc ? (+acc.amount||0) : 0, reserve, open, stages};
+}
+function requiredRate(pv, pmt, fv, months){
+  if(months<=0) return NaN;
+  const F = r => { const m = Math.pow(1+r,1/12)-1; const g = Math.pow(1+m,months); return pv*g + (m===0 ? pmt*months : pmt*(g-1)/m); };
+  if(F(0)>=fv && pv>=fv) return 0;
+  let lo=-0.9, hi=5;
+  if(F(hi)<fv) return Infinity;
+  for(let i=0;i<80;i++){ const mid=(lo+hi)/2; if(F(mid)>=fv) hi=mid; else lo=mid; }
+  return hi;
+}
+function monthsToGoal(pv, pmt, fv, r){
+  const m = Math.pow(1+r,1/12)-1; let v=pv, n=0;
+  while(v<fv && n<12*80){ v = v*(1+m)+pmt; n++; }
+  return n>=12*80 ? Infinity : n;
+}
+
+/* ---------- Anzeige ---------- */
+function render(){
+  const C = compute();
+  // Kopf
+  $("total").textContent = fmtE(C.total);
+  const d = C.total - S.start, dp = S.start>0 ? C.total/S.start-1 : NaN;
+  const unreal = C.invested - C.costSum;
+  $("delta").innerHTML =
+    `<span class="${d>=0?"pos":"neg"}">${d>=0?"+":""}${fmtE(d)} (${fmtP(dp,2,true)}) seit Start</span>`+
+    `<span style="color:var(--muted)">Buchgewinn Positionen: <span class="${unreal>=0?"pos":"neg"}">${unreal>=0?"+":""}${fmtE(unreal)}</span></span>`;
+  // Status
+  const st = $("status"); const hasStocks = S.positions.some(p=>p.type==="aktie"); const hasCrypto = S.positions.some(p=>p.type==="krypto");
+  let cls="", txt="";
+  const parts = [];
+  if(fetchState.ts){
+    const sOk = v => v===true || v==="fresh";
+    const okFx = fetchState.fx, okC = !hasCrypto || fetchState.crypto===true, okS = !hasStocks || sOk(fetchState.stock);
+    cls = (okFx && okC && okS) ? "live" : (okFx||fetchState.crypto||sOk(fetchState.stock)||fetchState.stock==="partial"||fetchState.stock==="limit") ? "partial" : "";
+    const time = new Date(fetchState.ts).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
+    if(cls==="live") parts.push("Live · Stand "+time);
+    else if(cls==="partial") parts.push("Teilweise live · "+time);
+    else {
+      const last = Math.max(0,...Object.values(S.quotes).map(q=>q.ts||0));
+      parts.push(last ? "Offline · letzte Kurse "+new Date(last).toLocaleString("de-DE",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}) : "Keine Verbindung zu den Kursquellen");
+    }
+    if(S.fx && S.fx.date) parts.push("EZB "+S.fx.date.split("-").reverse().join("."));
+    if(hasStocks && (S.settings.avKey||"").trim()){
+      const qs = stockSyms().map(s=>S.quotes["st:"+s]).filter(Boolean);
+      const oldest = qs.length ? Math.min(...qs.map(q=>q.ts)) : 0;
+      parts.push("Aktien "+(oldest? new Date(oldest).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"}) : "–")+" · AV "+avUsage().n+"/"+AV_DAILY+" heute");
+    }
+  } else parts.push("Lade Kurse …");
+  st.innerHTML = `<span class="dot ${cls}"></span><span>${esc(parts.join(" · "))}</span>`;
+  const kn = $("keyNotice");
+  const bad = Object.keys(S.avBad||{}).filter(s=>stockSyms().includes(s) && !S.quotes["st:"+s]);
+  if(hasStocks && !(S.settings.avKey||"").trim()){
+    kn.hidden=false; kn.innerHTML = `<b>Aktienkurse fehlen noch.</b> Trag unten in den Einstellungen deinen kostenlosen Alpha-Vantage-Schlüssel ein. Bis dahin rechnet die App mit dem Einstandskurs.`;
+  } else if(fetchState.stock==="limit" || (fetchState.stock==="partial" && avUsage().blocked)){
+    kn.hidden=false; kn.innerHTML = `<b>Alpha Vantage: Tageslimit erreicht.</b> Die Aktien zeigen den letzten Kurs; morgen geht es weiter. Krypto und Wechselkurse laufen normal.`;
+  } else if(bad.length){
+    kn.hidden=false; kn.innerHTML = `<b>Kein Kurs für ${esc(bad.join(", "))}.</b> Symbol prüfen: US-Werte ohne Zusatz, Toronto mit .TRT, Xetra mit .DEX. Sonst eigenen Kurs in der Position eintragen.`;
+  } else kn.hidden=true;
+  const ps = planState(), pn = $("planNotice");
+  const due = ps ? ps.stages.filter(s=>s.hit && !s.done) : [];
+  if(due.length){
+    const s = due[due.length-1];
+    pn.hidden=false;
+    pn.innerHTML = `<b>Krypto-Rücksetzer: Stufe ${s.i+1} erreicht (${fmtP(ps.chg,1)}).</b> Laut deinem Plan: ${fmtE(due.reduce((a,x)=>a+(+x.amount||0),0),0)} aus der Krypto-Reserve nachkaufen. Danach unten im Plan „Gekauft“ tippen und den Kauf mit Datum bei der Position eintragen.`;
+  } else pn.hidden=true;
+
+  renderGoal(C); renderStruct(C); renderPositions(C); renderCash(C); renderPlan();
+}
+function renderGoal(C){
+  const g = S.goal, start=+S.start||0, goal=+g.value||0;
+  const st = [0,1,2,3,4].map(i => i===0 ? start : i===4 ? goal : Math.round((start+(goal-start)*i/4)/500)*500);
+  const labels = ["Start","Etappe 1","Etappe 2","Etappe 3","Ziel"];
+  const subs = [S.startDate ? new Date(S.startDate).toLocaleDateString("de-DE") : "", "+"+fmtP(start? st[1]/start-1:NaN,0), "+"+fmtP(start? st[2]/start-1:NaN,0), "+"+fmtP(start? st[3]/start-1:NaN,0), "Ende "+g.year];
+  $("stages").innerHTML = st.map((v,i)=>`<div class="stage ${i===4?"target":""} ${i===2?"mid2":""} ${i===3?"mid3":""} ${C.total>=v && i>0 ? "done":""} ${i===0?"done":""}">
+      <div class="eyebrow">${labels[i]}</div><div class="v num">${fmtE(v,0)}</div><div class="s num">${esc(subs[i])}</div></div>`).join("");
+  const prog = goal>start ? Math.max(0,Math.min(1,(C.total-start)/(goal-start))) : (C.total>=goal?1:0);
+  $("goalFill").style.width = (prog*100).toFixed(1)+"%";
+  $("goalFrom").textContent = fmtE(start,0);
+  $("goalPct").textContent = fmtP(prog,0)+" des Wegs";
+  $("goalTo").textContent = fmtE(goal,0);
+  // nötige Rendite
+  const now = new Date(), end = new Date(+g.year,11,31);
+  const months = Math.max(0, (end.getFullYear()-now.getFullYear())*12 + (end.getMonth()-now.getMonth()));
+  const r = requiredRate(C.total, +g.monthly||0, goal, months);
+  let tag, note;
+  if(C.total>=goal){ tag=["t-good","erreicht"]; note="Zielwert ist erreicht. Zeit für ein neues Ziel."; }
+  else if(!isFinite(r) || months<=0){ tag=["t-bad","nicht planbar"]; note="In dieser Zeit ist das Ziel nicht erreichbar. Zieljahr später setzen oder Sparrate erhöhen."; }
+  else if(r<=0.10){ tag=["t-good","realistisch"]; note="Etwa Marktniveau. Die ETF-Basis der Pyramide erwartet rund 10 % p. a. (A1)."; }
+  else if(r<=0.20){ tag=["t-info","ehrgeizig"]; note="Machbar mit Qualitätswachstum: Large Caps 15–20 %, Strategic Plays 20–25 % p. a. (A1). Schlechte Jahre eingerechnet?"; }
+  else if(r<=0.30){ tag=["t-warn","sehr ehrgeizig"]; note="Liegt über dem, was Finanzwiesels Pyramide für Qualitätswerte erwartet. Gelingt nur, wenn vieles gut läuft."; }
+  else { tag=["t-bad","unrealistisch"]; note="Über 30 % p. a. über Jahre ist Glück, nicht Plan. Zieljahr später setzen oder Ziel senken."; }
+  const pmt = +g.monthly||0;
+  const n15 = monthsToGoal(C.total, pmt, goal, 0.15), n10 = monthsToGoal(C.total, pmt, goal, 0.10);
+  const when = n => { if(!isFinite(n)) return "–"; const dt=new Date(now.getFullYear(), now.getMonth()+n, 1); return dt.toLocaleDateString("de-DE",{month:"short",year:"numeric"}); };
+  const yrs = (months/12).toLocaleString("de-DE",{maximumFractionDigits:1});
+  $("kpis").innerHTML = `
+    <div class="kpi"><div class="eyebrow">Nötige Rendite</div><div class="big num">${C.total>=goal?"–":isFinite(r)?fmtP(r,1)+" p. a.":"> 500 %"}</div>
+      <p><span class="tag ${tag[0]}">${tag[1]}</span></p><p>${esc(note)}</p></div>
+    <div class="kpi"><div class="eyebrow">Restlaufzeit</div><div class="big num">${yrs} Jahre</div>
+      <p>bis Ende ${g.year}${pmt?`, mit ${fmtE(pmt,0)} Sparrate im Monat`:", ohne Sparrate"}. Basis: aktueller Depotwert ${fmtE(C.total,0)}.</p></div>
+    <div class="kpi"><div class="eyebrow">Ziel erreicht bei …</div><div class="big num">${when(n15)}</div>
+      <p>mit 15 % p. a. (Large-Cap-Niveau). Mit 10 % p. a. (Markt): ${when(n10)}.</p></div>`;
+}
+function bucketColor(k){ const b = BUCKETS.find(b=>b.k===k); return `var(${b?b.c:"--faint"})`; }
+function renderStruct(C){
+  const groups = BUCKETS.map(b => ({k:b.k, c:`var(${b.c})`, v:C.rows.filter(r=>r.p.bucket===b.k).reduce((a,r)=>a+r.value,0)})).filter(g=>g.v>0);
+  groups.push({k:"Cash", c:`var(${CASH_COLOR})`, v:C.cash});
+  const tot = C.total||1;
+  $("stack").innerHTML = groups.filter(g=>g.v>0).map(g=>{ const w=g.v/tot; return `<span class="${g.k==="Cash"?"cash":""}" style="width:${(w*100).toFixed(2)}%;background:${g.c}" title="${esc(g.k)} ${fmtP(w)}">${w>=0.28?esc(g.k==="Strategic Play"?"Strategic":g.k)+" "+fmtP(w,0):w>=0.07?fmtP(w,0):""}</span>`; }).join("");
+  $("stack").setAttribute("aria-label", "Aufteilung: "+groups.map(g=>g.k+" "+fmtP(g.v/tot)).join(", "));
+  $("legend").innerHTML = groups.map(g=>`<div class="lg"><i style="background:${g.c}"></i><span class="n">${esc(g.k)}</span><span class="e num">${fmtE(g.v,0)}</span><span class="p num">${fmtP(g.v/tot)}</span></div>`).join("");
+}
+function renderPositions(C){
+  const host = $("positions");
+  const sections = [
+    {t:"Aktien", rows:C.rows.filter(r=>r.p.type==="aktie")},
+    {t:"Krypto", rows:C.rows.filter(r=>r.p.type==="krypto")},
+  ];
+  host.innerHTML = sections.map(sec => {
+    const sum = sec.rows.reduce((a,r)=>a+r.value,0), cost = sec.rows.reduce((a,r)=>a+r.cost,0);
+    const head = `<div class="group-h"><b>${sec.t}${sec.t==="Krypto"?' <span class="tag" style="color:var(--violet);margin-left:6px">halten · Rücksetzer-Plan</span>':""}</b><span class="num">${fmtE(sum)} · ${fmtP(C.total? sum/C.total:0)} · <span class="${sum-cost>=0?"pos":"neg"}">${cost?fmtP(sum/cost-1,1,true):"–"}</span></span></div>`;
+    if(!sec.rows.length){
+      return head + `<div class="plist"><div class="empty"><b>Noch keine ${sec.t==="Krypto"?"Krypto-Position":"Aktie"}</b>Tippe oben auf „+ Position“ und wähle ${sec.t==="Krypto"?"„Krypto“":"„Aktie“"}.</div></div>`;
+    }
+    const maxW = Math.max(0.25, ...sec.rows.map(r=>r.w));
+    const items = sec.rows.sort((a,b)=>b.value-a.value).map(r=>{
+      const p=r.p, pr=r.pr, col=bucketColor(p.bucket);
+      const homeTxt = (pr.cur==="EUR" || !isFinite(pr.home)) ? fmtE(pr.eur, pr.eur<1?4:2) : `${fmtHome(pr.home,pr.cur)} · ${fmtE(pr.eur)}`;
+      const src = pr.src==="live" ? (isFinite(pr.chg)?`<span class="${pr.chg>=0?"pos":"neg"}">${fmtP(pr.chg,1,true)} heute</span>`:"") : `<span class="price-src">(${esc(pr.src)})</span>`;
+      const chips = ruleChips(r).map(c=>`<span class="chip ${c[0]}">${esc(c[1])}</span>`).join("");
+      const mark20 = (0.20/maxW*100);
+      return `<button class="prow" data-id="${esc(p.id)}" aria-label="${esc(p.name)} bearbeiten">
+        <span class="bar" style="background:${col}"></span>
+        <span style="min-width:0"><span class="nm" style="display:block">${esc(p.name)}</span>
+          <span class="tk" style="display:block">${esc(p.type==="aktie"?(p.symbol||"–"):(p.cgId||"–"))} · ${fmtN(+p.qty, (+p.qty)%1?4:0)} Stk · ${esc(p.bucket)}</span>
+          <span class="tk num" style="display:block">${homeTxt} ${src}</span></span>
+        <span><span class="val num" style="display:block">${fmtE(r.value)}</span>
+          <span class="pct num ${r.pnl>=0?"pos":"neg"}" style="display:block">${r.pnl>=0?"+":""}${fmtE(r.pnl)}</span>
+          <span class="pct num ${r.pnl>=0?"pos":"neg"}" style="display:block">${fmtP(r.pnlPct,1,true)}</span></span>
+        <span class="meta"><span class="wbar"><b style="width:${(r.w/maxW*100).toFixed(1)}%;background:${col}"></b>${p.type==="aktie" && maxW>0.2?`<span class="mark" style="left:${mark20.toFixed(1)}%" title="20-%-Grenze"></span>`:""}</span><span class="wtxt num">${fmtP(r.w)}</span></span>
+        ${chips?`<span class="chips">${chips}</span>`:""}
+        ${p.note?`<span class="tk" style="grid-column:2/span 2;margin-top:6px;white-space:normal">${esc(p.note)}</span>`:""}
+      </button>`;
+    }).join("");
+    return head + `<div class="plist">${items}</div>`;
+  }).join("");
+  host.querySelectorAll(".prow").forEach(b=>b.addEventListener("click",()=>openSheet(b.dataset.id)));
+}
+function renderCash(C){
+  const pct = C.total ? C.cash/C.total : 0;
+  $("cashTotal").textContent = fmtE(C.cash);
+  $("cashPct").textContent = fmtP(pct);
+  const ps = planState();
+  const kCash = ps && ps.acc ? ps.accAmt : 0;          // Krypto-Reserve (z. B. Bitvavo)
+  const sCash = C.cash - kCash;                         // Cash für Aktien
+  const sPct = C.total ? sCash/C.total : 0;
+  $("cashGauge").querySelector("b").style.width = Math.min(100,sPct*100).toFixed(1)+"%";
+  const reserve = 0.15*C.total, free = sCash - reserve;
+  let msg;
+  if(sPct < 0.10) msg = `<span class="tag t-bad">unter 10 %</span> Aktien-Cash nur bei extremem Abverkauf so tief (K19). Reserve auffüllen: Ziel ${fmtE(reserve,0)}.`;
+  else if(sPct < 0.15) msg = `<span class="tag t-warn">unter 15 %</span> Regel A5 verlangt ${fmtE(reserve,0)} Aktien-Cash. Es fehlen ${fmtE(reserve-sCash,0)}.`;
+  else if(sPct > 0.30) msg = `<span class="tag t-info">über 30 %</span> Im Aufbau normal. Reserve (15 %) = ${fmtE(reserve,0)}, frei für Aktien nach Plan: ${fmtE(free,0)}.`;
+  else msg = `<span class="tag t-good">im Rahmen</span> Reserve (15 %) = ${fmtE(reserve,0)}, frei für Aktien: ${fmtE(free,0)}.`;
+  let kmsg = "";
+  if(ps && ps.acc){
+    const gap = ps.open - kCash;
+    kmsg = `<p style="margin:6px 0 0;font-size:13.5px;color:var(--muted);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><span class="tag" style="color:var(--violet)">Krypto-Reserve</span> ${esc(ps.acc.name)}: ${fmtE(kCash,0)} – nur für den Rücksetzer-Plan, nicht für Aktien. ${gap>0.5?`Für die offenen Stufen fehlen noch ${fmtE(gap,0)}.`:""}</p>`;
+  }
+  $("cashMsg").innerHTML = `<p style="margin:0;font-size:13.5px;color:var(--muted);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">${msg}</p>${kmsg}`;
+  const host = $("cashAccounts");
+  // Eingabefelder nur neu bauen, wenn sich die Konten ändern (sonst springt der Fokus)
+  const sig = S.cash.map(c=>c.id).join(",");
+  if(host.dataset.sig !== sig){
+    host.dataset.sig = sig;
+    host.innerHTML = S.cash.map(c=>`<div class="acc">
+      <input class="inp" id="cn-${esc(c.id)}" value="${esc(c.name)}" aria-label="Kontoname">
+      <input class="inp num" id="ca-${esc(c.id)}" type="number" inputmode="decimal" step="0.01" value="${(+c.amount||0).toFixed(2)}" aria-label="Betrag in Euro">
+      <button class="icon-btn" data-del="${esc(c.id)}" aria-label="Konto entfernen" title="Konto entfernen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`).join("");
+    S.cash.forEach(c=>{
+      $("cn-"+c.id).addEventListener("change",e=>{c.name=e.target.value.trim()||"Konto";save();bindPlan();render();});
+      $("ca-"+c.id).addEventListener("input",e=>{const v=parseFloat(e.target.value); c.amount=isFinite(v)?v:0; save(); render();});
+    });
+    host.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{
+      if(b.dataset.armed){ S.cash = S.cash.filter(c=>c.id!==b.dataset.del); save(); render(); }
+      else { b.dataset.armed="1"; b.style.color="var(--bad)"; b.title="Nochmal tippen zum Entfernen"; toast("Nochmal tippen zum Entfernen"); setTimeout(()=>{delete b.dataset.armed;b.style.color="";},3000); }
+    }));
+  }
+}
+
+function renderPlan(){
+  const hasCrypto = S.positions.some(p=>p.type==="krypto");
+  const ps = planState();
+  $("cpCard").hidden = !ps; $("cpEmpty").hidden = !!ps || !hasCrypto;
+  if(!ps) return;
+  $("cpReserve").textContent = fmtE(ps.reserve,0)+" Reserve";
+  $("cpChg").innerHTML = `<span class="${ps.chg>=0?"pos":"neg"}">${fmtP(ps.chg,1,true)}</span>`;
+  const since = ps.P.created ? fmtDate(ps.P.created) : "";
+  $("cpBase").textContent = `Bezug: Krypto-Bestand vom ${since}, Einstand ${fmtE(ps.base,2)}, heute ${fmtE(ps.now,0)}${ps.missing?" (ohne Live-Kurs teils zum Einstand gerechnet)":""}. Marken sind fest.`;
+  $("cpStages").innerHTML = ps.stages.map(s=>{
+    const prog = isFinite(ps.chg) ? Math.max(0, Math.min(1, ps.chg / s.pct)) : 0;
+    const need = (1+s.pct)/(1+ps.chg)-1;
+    let state, col;
+    if(s.done){ state = `<span class="chip t-good">gekauft ${esc(fmtDate(s.done))}</span>`; col="var(--good)"; }
+    else if(s.hit){ state = `<span class="chip t-warn">erreicht · ${fmtE(+s.amount,0)} nachkaufen</span>`; col="var(--warn)"; }
+    else { state = `<span class="chip" style="color:var(--muted)">offen · noch ${fmtP(need,1).replace("-","−")}</span>`; col="var(--violet)"; }
+    return `<div class="stage-row">
+      <div class="t num">Stufe ${s.i+1} · ${fmtP(s.pct,0).replace("-","−")} · ${fmtE(+s.amount,0)}</div>
+      <div class="s num">Marke: Bezugsbestand ≤ ${fmtE(s.mark,0)}</div>
+      <span class="wbar"><b style="width:${(s.done?100:prog*100).toFixed(1)}%;background:${col}"></b></span>
+      <div class="act">${state}<button class="btn small ghost" data-stage="${s.i}">${s.done?"Rückgängig":"Gekauft"}</button></div>
+    </div>`;
+  }).join("");
+  $("cpStages").querySelectorAll("[data-stage]").forEach(b=>b.addEventListener("click",()=>{
+    const st = S.cryptoPlan.stages[+b.dataset.stage];
+    if(!b.dataset.armed){ b.dataset.armed="1"; b.textContent = st.done ? "Wirklich zurück?" : "Wirklich gekauft?"; setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent = st.done?"Rückgängig":"Gekauft"; } },3000); return; }
+    st.done = st.done ? null : new Date().toISOString().slice(0,10);
+    save(); render();
+    toast(st.done ? "Stufe als gekauft markiert – Kauf bei der Position eintragen, Guthaben anpassen" : "Stufe wieder offen");
+  }));
+}
+function bindPlan(){
+  const P = S.cryptoPlan; if(!P) return;
+  $("cpP1").value = Math.round(-P.stages[0].pct*100); $("cpA1").value = P.stages[0].amount;
+  $("cpP2").value = Math.round(-P.stages[1].pct*100); $("cpA2").value = P.stages[1].amount;
+  $("cpAcc").innerHTML = S.cash.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+  $("cpAcc").value = P.account || "";
+}
+[["cpP1",0,"pct"],["cpP2",1,"pct"],["cpA1",0,"amount"],["cpA2",1,"amount"]].forEach(([id,i,key])=>{
+  $(id).addEventListener("input", e=>{ if(!S.cryptoPlan) return; const v=num(e.target.value); if(!(v>0)) return;
+    S.cryptoPlan.stages[i][key] = key==="pct" ? -Math.min(90,v)/100 : v; save(); render(); });
+});
+$("cpAcc").addEventListener("change", e=>{ if(!S.cryptoPlan) return; S.cryptoPlan.account=e.target.value; save(); render(); });
+$("cpCreate").addEventListener("click", ()=>{ S.cryptoPlan = newPlan(); save(); bindPlan(); render(); toast("Rücksetzer-Plan angelegt"); });
+$("cpRebase").addEventListener("click", e=>{ const b=e.currentTarget;
+  if(!b.dataset.armed){ b.dataset.armed="1"; b.textContent="Wirklich? Marken ändern sich"; setTimeout(()=>{delete b.dataset.armed;b.textContent="Bezug neu setzen";},3000); return; }
+  const n=newPlan(); S.cryptoPlan.ref=n.ref; S.cryptoPlan.created=n.created; save(); render(); delete b.dataset.armed; b.textContent="Bezug neu setzen"; toast("Bezug neu gesetzt"); });
+$("cpDelete").addEventListener("click", e=>{ const b=e.currentTarget;
+  if(!b.dataset.armed){ b.dataset.armed="1"; b.textContent="Wirklich löschen?"; setTimeout(()=>{delete b.dataset.armed;b.textContent="Plan löschen";},3000); return; }
+  S.cryptoPlan=null; save(); render(); toast("Plan gelöscht"); });
+
+/* ---------- Bearbeiten ---------- */
+let editId = null, editType = "aktie";
+function setType(t){
+  editType=t;
+  document.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.type===t)));
+  $("stockFields").hidden = t!=="aktie"; $("symHint").hidden = t!=="aktie"; $("lotsField").hidden = t!=="krypto"; $("cryptoFields").hidden = t!=="krypto"; $("markFields").hidden = t!=="aktie";
+  $("fSymbol").required = t==="aktie";
+  if(t==="krypto") $("fBucket").value="Krypto"; else if($("fBucket").value==="Krypto") $("fBucket").value="Large Cap";
+  $("fManual").previousSibling.textContent = t==="krypto" ? "Eigener Kurs in € (nur wenn kein Live-Kurs)" : "Eigener Kurs in Heimatwährung (nur wenn kein Live-Kurs)";
+}
+function openSheet(id){
+  editId = id || null;
+  const p = id ? S.positions.find(x=>x.id===id) : null;
+  $("sheetTitle").textContent = p ? p.name+" bearbeiten" : "Neue Position";
+  $("fBucket").innerHTML = BUCKETS.map(b=>`<option>${b.k}</option>`).join("");
+  $("fName").value = p?.name||""; $("fSymbol").value = p?.symbol||""; $("fCur").value = p?.cur||"USD";
+  $("fCg").value = p?.cgId||""; $("cgHits").innerHTML="";
+  $("fQty").value = p?.qty ?? ""; $("fCost").value = p?.cost ?? "";
+  $("fNk1").value = p?.nk1 ?? ""; $("fNk2").value = p?.nk2 ?? ""; $("fTg").value = p?.tg ?? "";
+  $("fManual").value = p?.manual ?? ""; $("fNote").value = p?.note||"";
+  $("fLots").value = (p?.lots||[]).map(l=>fmtDate(l.date)+" "+String(l.qty).replace(".",",")).join("\n");
+  $("fBucket").value = p?.bucket || "Large Cap";
+  setType(p?.type || "aktie");
+  if(p) $("fBucket").value = p.bucket;
+  const del=$("delBtn"); del.hidden = !p; del.textContent="Löschen"; delete del.dataset.armed;
+  $("sheet").showModal();
+}
+$("posForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const p = editId ? S.positions.find(x=>x.id===editId) : {id:uid()};
+  Object.assign(p, {
+    type: editType, name: $("fName").value.trim(),
+    symbol: editType==="aktie" ? $("fSymbol").value.trim().toUpperCase() : undefined,
+    cur: editType==="aktie" ? $("fCur").value : "EUR",
+    cgId: editType==="krypto" ? $("fCg").value.trim().toLowerCase() : undefined,
+    bucket: $("fBucket").value, qty: num($("fQty").value)||0, cost: num($("fCost").value)||0,
+    nk1: editType==="aktie" ? num($("fNk1").value) : undefined, nk2: editType==="aktie" ? num($("fNk2").value) : undefined, tg: editType==="aktie" ? num($("fTg").value) : undefined,
+    manual: num($("fManual").value), note: $("fNote").value.trim(),
+    lots: editType==="krypto" ? parseLots($("fLots").value) : undefined
+  });
+  if(!editId) S.positions.push(p);
+  save(); $("sheet").close(); render(); refresh();
+});
+$("cancelBtn").addEventListener("click", ()=>$("sheet").close());
+$("delBtn").addEventListener("click", e => {
+  const b=e.currentTarget;
+  if(!b.dataset.armed){ b.dataset.armed="1"; b.textContent="Wirklich löschen?"; return; }
+  S.positions = S.positions.filter(x=>x.id!==editId); save(); $("sheet").close(); render(); toast("Position gelöscht");
+});
+document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>setType(b.dataset.type)));
+$("cgSearch").addEventListener("click", async () => {
+  const q = $("fCg").value.trim() || $("fName").value.trim(); if(!q) return;
+  $("cgHits").innerHTML = `<span class="hint">Suche …</span>`;
+  try {
+    const j = await getJSON("https://api.coingecko.com/api/v3/search?query="+encodeURIComponent(q));
+    const coins = (j.coins||[]).slice(0,6);
+    $("cgHits").innerHTML = coins.length ? coins.map(c=>`<button type="button" class="btn small" data-id="${esc(c.id)}" data-name="${esc(c.name)}">${esc(c.name)} <span class="mono" style="color:var(--muted)">${esc(c.symbol)}</span></button>`).join("") : `<span class="hint">Nichts gefunden.</span>`;
+    $("cgHits").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ $("fCg").value=b.dataset.id; if(!$("fName").value) $("fName").value=b.dataset.name; $("cgHits").innerHTML=`<span class="hint">Gewählt: ${esc(b.dataset.id)}</span>`; }));
+  } catch(e){ $("cgHits").innerHTML = `<span class="hint">CoinGecko nicht erreichbar. Trag die ID von der CoinGecko-Seite der Münze ein (z. B. bitcoin, ethereum, solana).</span>`; }
+});
+$("addBtn").addEventListener("click", ()=>openSheet(null));
+$("addCash").addEventListener("click", ()=>{ S.cash.push({id:uid(), name:"Neues Konto", amount:0}); save(); bindPlan(); render(); });
+$("refreshBtn").addEventListener("click", ()=>refresh(true));
+
+/* Ziel und Einstellungen */
+function bindInputs(){
+  $("gValue").value = S.goal.value; $("gYear").value = S.goal.year; $("gMonthly").value = S.goal.monthly||0;
+  $("sKey").value = S.settings.avKey||""; $("sCgKey").value = S.settings.cgKey||""; $("sStart").value = S.start; $("sDate").value = S.startDate||"";
+  $("sEvery").value = String(S.settings.stockEvery||60); $("avEvery").textContent = S.settings.stockEvery||60;
+  bindPlan();
+}
+$("gValue").addEventListener("input", e=>{ const v=num(e.target.value); if(v>0){S.goal.value=v; save(); render();} });
+$("gYear").addEventListener("input", e=>{ const v=parseInt(e.target.value,10); if(v>=2026 && v<=2080){S.goal.year=v; save(); render();} });
+$("gMonthly").addEventListener("input", e=>{ S.goal.monthly=num(e.target.value)||0; save(); render(); });
+$("sKey").addEventListener("change", e=>{ S.settings.avKey=e.target.value.trim(); const u=avUsage(); u.blocked=false; S.avUsage=u; save(); refresh(true); });
+$("sCgKey").addEventListener("change", e=>{ S.settings.cgKey=e.target.value.trim(); save(); refresh(true); });
+$("sEvery").addEventListener("change", e=>{ S.settings.stockEvery=+e.target.value; $("avEvery").textContent=e.target.value; save(); render(); });
+$("sStart").addEventListener("input", e=>{ const v=num(e.target.value); if(v>=0){S.start=v; save(); render();} });
+$("sDate").addEventListener("change", e=>{ S.startDate=e.target.value; save(); render(); });
+
+/* Sicherung */
+const exportData = () => { const o = JSON.parse(JSON.stringify(S)); delete o.quotes; delete o.avUsage; delete o.avBad; delete o.avMsg; o.settings = {...o.settings, avKey:"", cgKey:""}; o.exported = new Date().toISOString(); return JSON.stringify(o,null,1); };
+$("expFile").addEventListener("click", ()=>{
+  try { const blob = new Blob([exportData()],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="mein-portfolio-"+new Date().toISOString().slice(0,10)+".json"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); toast("Sicherung erstellt"); }
+  catch(e){ toast("Speichern nicht möglich – nimm „Kopieren“"); }
+});
+$("expCopy").addEventListener("click", ()=>{
+  const t = exportData();
+  navigator.clipboard?.writeText(t).then(()=>toast("Sicherung kopiert")).catch(()=>{ $("impText").value=t; $("impText").select(); toast("Text markiert – jetzt kopieren"); });
+});
+function importText(t){
+  try {
+    const o = JSON.parse(t); if(!o || !Array.isArray(o.positions) || !Array.isArray(o.cash)) throw 0;
+    const keep = {avKey:S.settings.avKey||"", cgKey:S.settings.cgKey||""}, usage = S.avUsage;
+    S = Object.assign(defaults(), o, {quotes:S.quotes||{}, avUsage:usage}); S.settings = Object.assign({stockEvery:60}, o.settings||{});
+    if(!S.settings.avKey) S.settings.avKey = keep.avKey; if(!S.settings.cgKey) S.settings.cgKey = keep.cgKey;
+    save(); bindInputs(); $("cashAccounts").dataset.sig=""; render(); refresh(); toast("Sicherung geladen");
+  } catch(e){ toast("Das ist keine gültige Sicherung"); }
+}
+$("impBtn").addEventListener("click", ()=>importText($("impText").value));
+$("impFile").addEventListener("change", e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>importText(r.result); r.readAsText(f); e.target.value=""; });
+
+let toastT;
+function toast(msg){ let el=document.querySelector(".toast"); if(!el){ el=document.createElement("div"); el.className="toast"; el.setAttribute("role","status"); document.body.appendChild(el);} el.textContent=msg; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true,2200); }
+
+/* Start */
+load(); bindInputs(); render(); refresh();
+setInterval(()=>{ if(!document.hidden) refresh(); }, 120000);
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden && Date.now()-fetchState.ts>90000) refresh(); });
+if("serviceWorker" in navigator && location.protocol==="https:"){ try { navigator.serviceWorker.register("sw.js").catch(()=>{}); } catch(e){} }
+})();
+</script>
+</body>
+</html>
